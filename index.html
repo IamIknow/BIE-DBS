@@ -1,0 +1,363 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="headers.css">
+    <link rel="stylesheet" href="text.css">
+    <title> BIE-DBS Sergey Stepanov </title>
+</head>
+
+<body>
+    <h1>Record Store - Semestral Project</h1>
+    <p style="text-align:left;color:brown; font-size:20">Author: Sergey Stepanov<br>
+    <a href="mailto:stepanov.serge97@gmail.com">Gmail</a></p>
+    <div>
+        <p> The net of music stores offers diferent types of records: vynil records, CDs and DVDs/BLU-RAYs. Each record has it's properties like the name of the record, genre, artist, year of publishing and label. There are some special properties: for vinyl records it is weight and for DVDs it is video format. Each shop has its own storage of records. Also some of the records can be not in any of the stores, but can be ordered. That means that the customer should see the amount of copies of each record that is currently on sale in particular store and records that are available for the ordering. </p>
+        <p> There are several stores in the net (each one has its own adress). And there are employees in each store. We want to store information about name, date of birth and salary of each employee. An employee can work only in one store, but store can have many employees. Some of the employees are managers of the local stores. Each store can have only one manager, and employee can manage only one store. </p>
+        <p> We want to have an information about every customer that bought something in the net of stores. We want to know the name of the customer, date of purchase, what did he buy (or ordered) and in which shop. </p>
+        <p> The staff of the shops should be able to see all purchases and orders that were made in stores, so that they can get an information about the profit of the company. </p>
+        <p> Some of the customers have discount cards. The information needed for the cardholder is his name, address, amount of money spent on purchases, his date of birth and e-mail. </p>
+        <hr class="line"> </div>
+    <div>
+        <h3>Conceptual Model</h3> <img src="Conceptual model.png"> </div>
+    <div>
+        <h3>Relational Model</h3> <img src="Relational model.png"> </div>
+    <div>
+        <h3>SQL Scripts</h3>
+        <p><a href="create.html">Script for creating the database</a></p>
+        <p><a href="insert.html">Script for inserting the data</a></p>
+        <p><a href="Queries.sql">Script containing all the queries</a></p>
+    </div>
+    <div>
+        <h3>SQL Queries</h3>
+        <p>1. Cover statement code : d1 <a name = "d1"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">--Select names of employees who work in Dejvicka shop
+
+<font color = red>SELECT</font> employee.NAME,employee.surname
+<font color = red>FROM</font> employee <font color = red>JO<font color = red>IN</font></font> shop <font color = red>ON</font> (employee.sid=shop.sid)
+<font color = red>WHERE</font> (shop.address = 'Dejvicka');
+</pre>
+        <p>2. Cover statement code : d2 <a name = "d2"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+     --Select all customers who had purchases
+
+<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> customer.name
+<font color = red>FROM</font> customer <font color = red>JO<font color = red>IN</font></font> purchase <font color = red>ON</font>(purchase.cid=customer.cid);
+            </pre>
+        <p>3. Cover statement code : d3 <a name = "d3"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">--List of records that are only in Dejvicka shop
+            
+<font color = red>SELECT</font> record.artist, record.album
+<font color = red>FROM</font> record <font color = red>JO<font color = red>IN</font></font> litem <font color = red>ON</font>(litem.rid=record.rid)
+<font color = red>JO<font color = red>IN</font></font> reclist <font color = red>ON</font> (litem.lid = reclist.lid)
+<font color = red>JO<font color = red>IN</font></font> shop <font color = red>ON</font> (reclist.sid = shop.sid)
+<font color = red>WHERE</font> (shop.address = 'Dejvicka')
+<font color = red>M<font color = red>IN</font>US</font>
+<font color = red>SELECT</font> record.artist, record.album
+<font color = red>FROM</font> record <font color = red>JO<font color = red>IN</font></font> litem <font color = red>ON</font>(litem.rid=record.rid)
+<font color = red>JO<font color = red>IN</font></font> reclist <font color = red>ON</font> (litem.lid = reclist.lid)
+<font color = red>JO<font color = red>IN</font></font> shop <font color = red>ON</font> (reclist.sid = shop.SID)
+<font color = red>WHERE</font> (shop.address != 'Dejvicka');
+            </pre>
+        <p>4. Cover statement code : d4 <a name = "d4"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query"> 
+    --Select records (Artist and album) that are represented in each shop (list)
+    
+<font color = red>WITH</font>           
+r <font color = red>AS</font> (<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> rid <font color = red>FROM</font> litem), --list of records saled
+s <font color = red>AS</font> (<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> lid <font color = red>FROM</font> litem), --list of shops
+universe <font color = red>AS</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> r <font color = red>CROSS</font> <font color = red>JO<font color = red>IN</font></font> s), -- all possible variants (each record is on sale in each shop)
+nothappen <font color = red>AS</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> universe <font color = red>M<font color = red>IN</font>US</font> (<font color = red>SELECT</font> rid, lid <font color = red>FROM</font> litem)) --not in each store
+<font color = red>SELECT</font> record.artist, record.album 
+<font color = red>FROM</font> (<font color = red>SELECT</font>*<font color = red>FROM</font>(<font color = red>SELECT</font> * <font color = red>FROM</font> r) <font color = red>M<font color = red>IN</font>US</font> (<font color = red>SELECT</font> rid <font color = red>FROM</font> nothappen))
+<font color = red>JO<font color = red>IN</font></font> record <font color = red>US<font color = red>IN</font>G</font>(rid);
+            </pre>
+        <p>5. Cover statement code : d5 <a name = "d5"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">--{{list of all shops, where Pink Floyd's Dark Side of The Moon is saled }\ (minus){list of all shops}}
+
+<font color = red>WITH</font> 
+r <font color = red>AS</font> (<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> rid <font color = red>FROM</font> litem), --list of records saled
+s <font color = red>AS</font> (<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> lid <font color = red>FROM</font> litem), --list of shops
+universe <font color = red>AS</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> r <font color = red>CROSS</font> <font color = red>JO<font color = red>IN</font></font> s), -- all possible variants (each record is on sale in each shop)
+nothappen <font color = red>AS</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> universe <font color = red>M<font color = red>IN</font>US</font> (<font color = red>SELECT</font> rid, lid <font color = red>FROM</font> litem)), --not in each store
+allrec <font color = red>AS</font> (<font color = red>SELECT</font> record.artist, record.album 
+<font color = red>FROM</font> (<font color = red>SELECT</font>*<font color = red>FROM</font>(<font color = red>SELECT</font> * <font color = red>FROM</font> r) <font color = red>M<font color = red>IN</font>US</font> (<font color = red>SELECT</font> rid <font color = red>FROM</font> nothappen))
+<font color = red>JO<font color = red>IN</font></font> record <font color = red>US<font color = red>IN</font>G</font>(rid))
+
+<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> lid 
+<font color = red>FROM</font> (litem <font color = red>JO<font color = red>IN</font></font> record <font color = red>US<font color = red>IN</font>G</font>(rid)) <font color = red>WHERE</font> (artist <font color = red>IN</font> (<font color = red>SELECT</font> artist <font color = red>FROM</font> allrec) AND album <font color = red>IN</font> (<font color = red>SELECT</font> album <font color = red>FROM</font> allrec))
+<font color = red>M<font color = red>IN</font>US</font>
+<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> lid <font color = red>FROM</font> litem;
+            </pre>
+        <p>6. Cover statement code : d6 <a name = "d6"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">--Customers, who ordered something but did not purchase anything
+
+
+<font color = red>SELECT</font> customer.NAME <font color = red>FROM</font> customer
+<font color = red>WHERE</font> (customer.cid <font color = red>NOT</font> <font color = red>IN</font> (<font color = red>SELECT</font> purchase.cid <font color = red>FROM</font> purchase)
+AND customer.cid <font color = red>IN</font> (<font color = red>SELECT</font> ord.cid <font color = red>FROM</font> ord));
+
+--left outer join formulation
+
+<font color = red>WITH</font>
+cusorder <font color = red>AS</font> (<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> cid <font color = red>FROM</font> ord),
+cusnotpur <font color = red>AS</font> (<font color = red>SELECT</font> * <font color = red>FROM</font>(<font color = red>SELECT</font> customer.cid <font color = red>AS</font> c1, pid 
+<font color = red>FROM</font> customer LEFT OUTER <font color = red>JO<font color = red>IN</font></font> purchase <font color = red>ON</font> (customer.cid = purchase.cid)
+) <font color = red>WHERE</font> (COALESCE(pid, 0) = 0))
+<font color = red>SELECT</font> customer.NAME <font color = red>FROM</font>
+((<font color = red>SELECT</font> * <font color = red>FROM</font> cusorder) <font color = red>IN</font>TERSECT (<font color = red>SELECT</font> c1 <font color = red>FROM</font> cusnotpur))
+<font color = red>JO<font color = red>IN</font></font> 
+customer <font color = red>US<font color = red>IN</font>G</font> (cid);
+
+--formulation with exists
+
+<font color = red>WITH</font> cusnotpur <font color = red>AS</font> (<font color = red>SELECT</font> customer.cid <font color = red>FROM</font> customer
+<font color = red>WHERE</font> <font color = red>NOT</font> EXISTS(<font color = red>SELECT</font> 1 <font color = red>FROM</font> purchase <font color = red>WHERE</font> (customer.cid = purchase.cid))),
+ordercus <font color = red>AS</font> (<font color = red>SELECT</font> customer.cid <font color = red>FROM</font> customer 
+<font color = red>WHERE</font> EXISTS (<font color = red>SELECT</font> 1 <font color = red>FROM</font> ord <font color = red>WHERE</font> (customer.cid = ord.cid)))
+<font color = red>SELECT</font> * <font color = red>FROM</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> cusnotpur <font color = red>IN</font>TERSECT (<font color = red>SELECT</font> * <font color = red>FROM</font> ordercus))
+<font color = red>JO<font color = red>IN</font></font> customer <font color = red>US<font color = red>IN</font>G</font> (cid);    
+            </pre>
+        <p>7. Cover statement code : d7 <a name = "d7"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+            
+    --Customers who have both orders and purchases
+
+<font color = red>SELECT</font> <font color = red>DIST<font color = red>IN</font>CT</font> customer.NAME <font color = red>FROM</font> 
+customer FULL OUTER <font color = red>JO<font color = red>IN</font></font> purchase <font color = red>US<font color = red>IN</font>G</font> (cid)
+FULL OUTER <font color = red>JO<font color = red>IN</font></font> ord <font color = red>US<font color = red>IN</font>G</font> (cid)
+<font color = red>WHERE</font> (pid IS <font color = red>NOT</font> NULL AND OID IS <font color = red>NOT</font> NULL);
+            </pre>
+        <p>8. Cover statement code : d8 <a name = "d8"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Records that were not ordered from 2.12.16 to 4.12.16
+            
+<font color = red>SELECT</font> artist, album, orddate <font color = red>FROM</font> record 
+<font color = red>JO<font color = red>IN</font></font> 
+(<font color = red>SELECT</font> rid, OID <font color = red>FROM</font> oitem 
+<font color = red>WHERE</font> (oitem.OID <font color = red>NOT</font> <font color = red>IN</font> 
+(<font color = red>SELECT</font> OID <font color = red>FROM</font> ord <font color = red>WHERE</font> (orddate > '1.12.16' AND orddate < '5.12.16'))))
+<font color = red>USING</font> (rid)
+<font color = red>JO<font color = red>IN</font></font> ord <font color = red>US<font color = red>IN</font>G</font> (OID);
+            </pre>
+        <p>9. Cover statement code : d9 <a name = "d9"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Customers list. For each customer find the count of orders he made.
+
+<font color = red>SELECT</font> customer.NAME, (<font color = red>SELECT</font> count(*) <font color = red>FROM</font> ord <font color = red>WHERE</font> ord.cid = customer.cid ) <font color = red>FROM</font> customer;
+            </pre>
+        <p>10. Cover statement code : d10 <a name = "d10"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --List of all people in the database 
+
+<font color = red>SELECT</font> NAME <font color = red>FROM</font> customer
+UNI<font color = red>ON</font>
+<font color = red>SELECT</font> surname <font color = red>FROM</font> employee;
+        </pre>
+        <p>11. Cover statement code : d11 <a name = "d11"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Display the amount of records for each genre
+
+<font color = red>SELECT</font> record.genre, count(rid) <font color = red>AS</font> countrecord <font color = red>FROM</font> record GROUP BY record.genre;
+        </pre>
+        <p>12. Cover statement code : d12 <a name = "d12"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Select cd records with audio format audio cd, which were bought more than once. Order the list by ascending the price.
+
+<font color = red>WITH</font> 
+cdbought <font color = red>AS</font> (<font color = red>SELECT</font> rid <font color = red>FROM</font> 
+((<font color = red>SELECT</font> rid <font color = red>FROM</font> cd <font color = red>WHERE</font> (format = 'audio CD'))
+<font color = red>JO<font color = red>IN</font></font> pitem <font color = red>US<font color = red>IN</font>G</font>(rid)))
+
+<font color = red>SELECT</font> * <font color = red>FROM</font> (<font color = red>SELECT</font> rid, count (rid) <font color = red>FROM</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> cdbought) GROUP BY rid
+HAV<font color = red>IN</font>G (count(rid) > 1)) <font color = red>JO<font color = red>IN</font></font> record <font color = red>US<font color = red>IN</font>G</font> (rid) ORDER BY (price);
+
+        </pre>
+        <p>13. Cover statement code : d13 <a name = "d13"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Records that are available in dejvicka shop
+
+DROP VIEW dejvickashopstorage;
+CREATE VIEW dejvickashopstorage <font color = red>AS</font> 
+<font color = red>WITH</font>
+dlist <font color = red>AS</font> (<font color = red>SELECT</font> lid <font color = red>FROM</font> reclist <font color = red>JO<font color = red>IN</font></font> shop <font color = red>US<font color = red>IN</font>G</font> (sid)
+<font color = red>WHERE</font> (address = 'Dejvicka'))
+<font color = red>SELECT</font> artist, album, YEAR, genre, price, purdate, name <font color = red>FROM</font> 
+(<font color = red>SELECT</font> * <font color = red>FROM</font> litem <font color = red>WHERE</font> (lid <font color = red>IN</font> (<font color = red>SELECT</font> * <font color = red>FROM</font> dlist)))
+<font color = red>JO<font color = red>IN</font></font> 
+record <font color = red>US<font color = red>IN</font>G</font> (rid)
+<font color = red>JO<font color = red>IN</font></font>
+(<font color = red>SELECT</font> pid, rid <font color = red>FROM</font> pitem) <font color = red>US<font color = red>IN</font>G</font> (rid)
+<font color = red>JO<font color = red>IN</font></font> 
+(<font color = red>SELECT</font> purdate, pid, cid <font color = red>FROM</font> purchase) <font color = red>US<font color = red>IN</font>G</font> (pid)
+<font color = red>JO<font color = red>IN</font></font> 
+(<font color = red>SELECT</font> cid, NAME <font color = red>FROM</font> customer) <font color = red>US<font color = red>IN</font>G</font> (cid);
+        </pre>
+        <p>14. Cover statement code : d14 <a name = "d14"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --Calculate the summary profit of the Dejvicka store
+
+
+<font color = red>SELECT</font> sum(price) <font color = red>FROM</font> dejvickashopstorage;
+        </pre>
+        <p>15. Cover statement code : d15 <a name = "d15"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+        --Order each vinyl record for customer 
+
+
+<font color = red><font color = red>IN</font>SERT</font> <font color = red>INTO</font> ord (cid, oid, shipdate, orddate)
+<font color = red>SELECT</font> 1,9,to_date('01.01.01','DD.MM.RR'), to_date('01.01.01','DD.MM.RR')
+<font color = red>FROM</font> dual;
+<font color = red><font color = red>IN</font>SERT</font> <font color = red>INTO</font> oitem (amount, rid, oid)
+<font color = red>SELECT</font> 1, rid, 9 <font color = red>FROM</font> vinyl;
+
+        </pre>
+        <p>16. Cover statement code : d16 <a name = "d16"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+    --increase the salary of employees in a shops that have less than 3 employees
+
+<font color = red>UPDATE</font> employee
+SET salary = salary * 1.5 
+<font color = red>WHERE</font> (sid <font color = red>IN</font> (<font color = red>SELECT</font> sid <font color = red>FROM</font> employee GROUP BY (sid)
+<font color = red>HAVING</font> count(eid) < 2));
+        </pre>
+        <p>17. Cover statement code : d17 <a name = "d17"><a href="#cover">[SQL Statements cover]</a></a></p> <pre class="query">
+<font color = red>DELETE</font> <font color = red>FROM</font> oitem
+<font color = red>WHERE</font> ((amount, rid, OID)
+<font color = red>IN</font> (<font color = red>SELECT</font> 1, rid, 9 <font color = red>FROM</font> vinyl));
+
+<font color = red>DELETE</font> <font color = red>FROM</font> ord
+<font color = red>WHERE</font> ((cid, OID, shipdate, orddate)
+<font color = red>IN</font> (<font color = red>SELECT</font> 1,9,to_date('01.01.01','DD.MM.RR'),to_date('01.01.01','DD.MM.RR')
+<font color = red>FROM</font> dual));
+            </pre> </div>
+    <div>
+        <br>
+        <h3><a name ="cover">Cover statement code</a></h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th> Category </th>
+                    <th> Cover statement code</th>
+                    <th> Category statement description</th>
+                </tr>
+                <tr>
+                    <td>A</td>
+                    <td><a href="#d1">d1</a> </td>
+                    <td>Simple (positive) query with at least two joined tables (list of patients - name, address who were examined by doctor Braun)</td>
+                </tr>
+                <tr>
+                    <td>B</td>
+                    <td><a href="#d2">d2</a> </td>
+                    <td>Simple (negative) query (list of patients - name, address who were not visiting doctor Braun) (select all doctors who had patients,...)</td>
+                </tr>
+                <tr>
+                    <td>C</td>
+                    <td><a href="#d3">d3</a></td>
+                    <td>Choose all records, which have relation for "X" only …(list of patients - name, address who were examined by doctor Braun ONLY - the patients didn't have visit at another doctor).</td>
+                </tr>
+                <tr>
+                    <td>D1</td>
+                    <td><a href="#d4">d4</a> </td>
+                    <td> Select all records which are at the relation with all.General quantified query (list of doctors - name, address who were visited by EACH patient, who visited doctor Braun) </td>
+                </tr>
+                <tr>
+                    <td>D2</td>
+                    <td><a href="#d5">d5</a> </td>
+                    <td>The result validity check from category D1. For example if query {list of teachers, who had lecture during ALL semesters begin at winter 2001/2002 till summer semester 2008/2008 included} shows the teacher "123 Josef Pavlicek", so the validity check will be query {{list of all semester at the season, where was teaching Pavlicek }\ (minus){list of all semester at the season}} and the result must be empty. </td>
+                </tr>
+                <tr>
+                    <td>F1</td>
+                    <td><a href="#d1">d1</a> </td>
+                    <td>join - JOIN ON</td>
+                </tr>
+                <tr>
+                    <td>F2</td>
+                    <td><a href="#d2">d2</a> </td>
+                    <td>NATURAL JOIN | JOIN USING</td>
+                </tr>
+                <tr>
+                    <td>F3</td>
+                    <td><a href="#d4">d4</a> </td>
+                    <td>CROSS JOIN</td>
+                </tr>
+                <tr>
+                    <td>F4</td>
+                    <td><a href="#d6">d6</a> </td>
+                    <td>LEFT | RIGHT OUTER JOIN</td>
+                </tr>
+                <tr>
+                    <td>F5</td>
+                    <td><a href="#d7">d7</a> </td>
+                    <td> FULL (OUTER) JOIN</td>
+                </tr>
+                <tr>
+                    <td>G1</td>
+                    <td><a href="#d8">d8</a> </td>
+                    <td>Subquery inside WHERE</td>
+                </tr>
+                <tr>
+                    <td>G2</td>
+                    <td><a href="#d6">d6</a> </td>
+                    <td>Subquery inside FROM</td>
+                </tr>
+                <tr>
+                    <td>G3</td>
+                    <td><a href="#d9">d9</a> </td>
+                    <td>Subquery inside SELECT</td>
+                </tr>
+                <tr>
+                    <td>G4</td>
+                    <td><a href="#d6">d6</a></td>
+                    <td>Correlated subquery (EXISTS | NOT EXISTS)</td>
+                </tr>
+                <tr>
+                    <td>H1</td>
+                    <td><a href="#d10">d10</a> </td>
+                    <td> Set union query - UNION</td>
+                </tr>
+                <tr>
+                    <td>H2</td>
+                    <td><a href="#d4">d4</a> </td>
+                    <td>Set substraction query - EXCEPT or MINUS (v Oracle)</td>
+                </tr>
+                <tr>
+                    <td>H3</td>
+                    <td><a href="#d6">d6</a> </td>
+                    <td> Set intersection - INTERSECT</td>
+                </tr>
+                <tr>
+                    <td>I1</td>
+                    <td><a href="#d11">d11</a> </td>
+                    <td>Aggregation functions (count | sum | min | max| avg)</td>
+                </tr>
+                <tr>
+                    <td>I2</td>
+                    <td><a href="#d11">d11</a></td>
+                    <td> Aggregations with GROUP BY (HAVING) clause</td>
+                </tr>
+                <tr>
+                    <td>J</td>
+                    <td><a href="#d6">d6</a> </td>
+                    <td>The same query using three different formulations in SQL</td>
+                </tr>
+                <tr>
+                    <td>K</td>
+                    <td><a href="#d12">d12</a> </td>
+                    <td>All select clauses - SELECT FROM WHERE GROUP BY HAVING ORDER BY</td>
+                </tr>
+                <tr>
+                    <td>L</td>
+                    <td><a href="#d13">d13</a> </td>
+                    <td>Make VIEW</td>
+                </tr>
+                <tr>
+                    <td>M</td>
+                    <td><a href="#d14">d14</a> </td>
+                    <td> View used query</td>
+                </tr>
+                <tr>
+                    <td>N</td>
+                    <td><a href="#d15">d15</a> </td>
+                    <td>Insert statement for inserting list of records - INSERT without clause VALUES use, for example ( add customer ID 6 all green boats reservation for all needed time intervals)</td>
+                </tr>
+                <tr>
+                    <td>O</td>
+                    <td><a href="#d16">d16</a> </td>
+                    <td> UPDATE statement with subquery in WHERE/SET</td>
+                </tr>
+                <tr>
+                    <td>P</td>
+                    <td><a href="#d17">d17</a> </td>
+                    <td> DELETE statement with subquery in WHERE clause</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

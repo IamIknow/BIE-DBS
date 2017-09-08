@@ -1,0 +1,34 @@
+H1 {
+    text-align: center;
+    font:Arial;
+    font-weight:bolder;
+    color:brown;
+}
+
+H3 {
+    text-align: center;
+    font:Arial;
+    font-weight:bolder;
+    color:brown;
+    font-size: 20;
+}
+
+IMG {
+    margin-left: 10%;
+    border: 2px solid #00a8e1;
+}
+hr{
+    width: 500px;
+}
+TABLE{
+    background: gray;
+    border: border: 1px solid #000;
+    
+}
+TR{
+    border: border: 1px solid #000;
+}
+ TD, TH {
+    padding: 5px; /* Поля вокруг текста */
+    border: 1px solid #000; /* Рамка вокруг ячеек */
+   }
